@@ -1,0 +1,95 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class SandTileType : MonoBehaviour {
+
+	public TileType tt;
+
+	private bool hasTypeAbove;
+	private bool hasTypeBelow;
+	private bool hasTypeLeft;
+	private bool hasTypeRight;
+	private bool hasDiffTypeAbove;
+
+	// Use this for initialization
+	void Start () {
+		if (this.gameObject.GetComponent<DirtTileType> ()) {
+			this.gameObject.GetComponent<DirtTileType> ().enabled = false;
+		}
+		if (this.gameObject.GetComponent<GrassTileType> ()) {
+			this.gameObject.GetComponent<GrassTileType> ().enabled = false;
+		}
+		tt = GetComponentInParent<TileType> ();
+
+		CheckNeighborTiles ();
+	}
+
+	public void CheckNeighborTiles(){
+
+		Vector3 temp = this.transform.position;
+		temp.x += 0.5f;
+		temp.y += 0.5f;
+		Vector3 center = temp;
+
+		//Fire Up
+		RaycastHit2D hitUp = Physics2D.Raycast (center, Vector3.up, 1);
+		Debug.DrawRay (center, Vector3.up, Color.green,5);
+
+		if (hitUp) {
+			if (hitUp.collider.GetComponent<SandTileType> () != null) {
+				Debug.Log ("Sand Tile above");
+				hasTypeAbove = true;
+			}
+			else if (hitUp.collider) {
+				hasDiffTypeAbove = true;
+			}
+		}
+
+		//Fire Down
+		RaycastHit2D hitDown = Physics2D.Raycast (center, Vector3.down, 1);
+		Debug.DrawRay (center, Vector3.down, Color.green,5);
+
+		if (hitDown) {
+			if (hitDown.collider.GetComponent<SandTileType> () != null) {
+				Debug.Log ("Sand Tile below");
+				hasTypeBelow = true;
+			}
+		}
+
+		//Fire Left
+		RaycastHit2D hitLeft = Physics2D.Raycast (center, Vector3.left, 1);
+		Debug.DrawRay (center, Vector3.left, Color.green,5);
+
+		if (hitLeft) {
+			if (hitLeft.collider.GetComponent<SandTileType> () != null) {
+				Debug.Log ("Sand Tile Left");
+				hasTypeLeft = true;
+			}
+		}
+
+		//Fire Right
+		RaycastHit2D hitRight = Physics2D.Raycast (center, Vector3.right, 1);
+		Debug.DrawRay (center, Vector3.right, Color.green,5);
+
+		if (hitRight) {
+			if (hitRight.collider.GetComponent<SandTileType> () != null) {
+				Debug.Log ("Sand Tile Right");
+				hasTypeRight = true;
+			}
+		}
+		setTileSprite ();
+	}
+
+	private void setTileSprite(){
+		if (!hasTypeAbove && hasTypeBelow) {
+			this.GetComponent<SpriteRenderer> ().sprite = tt.sandTop;
+		} else {
+			this.GetComponent<SpriteRenderer> ().sprite = tt.sand;
+		}
+
+		if (hasDiffTypeAbove) {
+			this.GetComponent<SpriteRenderer> ().sprite = tt.sandTop;
+		}
+	}
+}
