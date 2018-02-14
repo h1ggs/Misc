@@ -1,0 +1,105 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class WaterTileType : MonoBehaviour {
+
+	public TileType tt;
+
+	private bool hasTypeAbove;
+	private bool hasTypeBelow;
+	private bool hasTypeLeft;
+	private bool hasTypeRight;
+	private bool hasDiffTypeAbove;
+	private bool hasDiffTypeBelow;
+
+	// Use this for initialization
+	void Start () {
+		if (this.gameObject.GetComponent<GrassTileType> ()) {
+			this.gameObject.GetComponent<GrassTileType> ().enabled = false;
+		}
+		if (this.gameObject.GetComponent<DirtTileType> ()) {
+			this.gameObject.GetComponent<DirtTileType> ().enabled = false;
+		}
+		if (this.gameObject.GetComponent<SandTileType> ()) {
+			this.gameObject.GetComponent<SandTileType> ().enabled = false;
+		}
+		tt = GetComponentInParent<TileType> ();
+
+		CheckNeighborTiles ();
+	}
+
+	public void CheckNeighborTiles(){
+
+		Vector3 temp = this.transform.position;
+		temp.x += 0.5f;
+		temp.y += 0.5f;
+		Vector3 center = temp;
+
+		//Fire Up
+		RaycastHit2D hitUp = Physics2D.Raycast (center, Vector3.up, 1);
+		Debug.DrawRay (center, Vector3.up, Color.green,10);
+
+		if (hitUp) {
+			if (hitUp.collider.GetComponent<WaterTileType> () != null) {
+				Debug.Log ("Water Tile above");
+				hasTypeAbove = true;
+			}
+			else if (hitUp.collider) {
+				hasDiffTypeAbove = true;
+			}
+		}
+
+		//Fire Down
+		RaycastHit2D hitDown = Physics2D.Raycast (center, Vector3.down, 1);
+		Debug.DrawRay (center, Vector3.down, Color.green,10);
+
+		if (hitDown) {
+			if (hitDown.collider.GetComponent<WaterTileType> () != null) {
+				Debug.Log ("Water Tile below");
+				hasTypeBelow = true;
+			}
+			else if(hitDown.collider.GetComponent<GrassTileType>()) {
+				hasDiffTypeBelow = true;
+			}
+		}
+
+		//Fire Left
+		RaycastHit2D hitLeft = Physics2D.Raycast (center, Vector3.left, 1);
+		Debug.DrawRay (center, Vector3.left, Color.green,10);
+
+		if (hitLeft) {
+			if (hitLeft.collider.GetComponent<WaterTileType> () != null) {
+				Debug.Log ("Water Tile Left");
+				hasTypeLeft = true;
+			}
+		}
+
+		//Fire Right
+		RaycastHit2D hitRight = Physics2D.Raycast (center, Vector3.right, 1);
+		Debug.DrawRay (center, Vector3.right, Color.green,10);
+
+		if (hitRight) {
+			if (hitRight.collider.GetComponent<WaterTileType> () != null) {
+				Debug.Log ("Water Tile Right");
+				hasTypeRight = true;
+			}
+		}
+		setTileSprite ();
+	}
+
+	private void setTileSprite(){
+		if (!hasTypeAbove && hasTypeBelow) {
+			this.GetComponent<SpriteRenderer> ().sprite = tt.waterTop;
+		} else {
+			this.GetComponent<SpriteRenderer> ().sprite = tt.water;
+		}
+
+		if (hasDiffTypeAbove) {
+			this.GetComponent<SpriteRenderer> ().sprite = tt.waterTop;
+		}
+		if (hasDiffTypeBelow && hasTypeAbove) {
+			this.GetComponent<SpriteRenderer> ().sprite = tt.waterBottom;
+		}
+	}
+}
